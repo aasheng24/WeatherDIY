@@ -15,58 +15,61 @@ import java.util.List;
  */
 
 public class BirdUp extends Actor {
-    private static final int[] imgs = new int[]{R.drawable.finedayup_1, R.drawable.finedayup_2, R.drawable.finedayup_3, R.drawable.finedayup_4, R.drawable.finedayup_5, R.drawable.finedayup_6, R.drawable.finedayup_7, R.drawable.finedayup_8};
+    private static final int[] mImages = new int[]{R.drawable.finedayup_1, R.drawable.finedayup_2, R.drawable.finedayup_3,
+            R.drawable.finedayup_4, R.drawable.finedayup_5, R.drawable.finedayup_6,
+            R.drawable.finedayup_7, R.drawable.finedayup_8};
 
-    float initPositionX;
-    float initPositionY;
-    boolean isInit;
-    List<Bitmap> frames;
-    RectF box;
-    RectF targetBox;
-    int curFrameIndex;
-    long lastTime;
-    Paint paint = new Paint();
+    private float mInitPositionX;
+    private float mInitPositionY;
+    private boolean mInited;
+    private List<Bitmap> mFrames;
+    private RectF mBox;
+    private RectF mTargetBox;
+    private int mCurFrameIndex;
+    private long mInitTime;
+    private Paint mPaint;
 
     protected BirdUp(Context context) {
         super(context);
-        frames = new ArrayList<Bitmap>();
-        box = new RectF();
-        targetBox = new RectF();
-        paint.setAntiAlias(true);
+        mFrames = new ArrayList<Bitmap>();
+        mBox = new RectF();
+        mTargetBox = new RectF();
+        mPaint = new Paint();
+        mPaint.setAntiAlias(true);
     }
 
     @Override
     public void draw(Canvas canvas, int width, int height) {
         //逻辑处理
         //初始化
-        if (!isInit) {
-            initPositionX = width * 0.117F;
-            initPositionY = height * 0.35F;
-            matrix.reset();
-            matrix.postTranslate(initPositionX, initPositionY);
-            for (int res : imgs) {
-                frames.add(BitmapFactory.decodeResource(context.getResources(), res));
+        if (!mInited) {
+            mInitPositionX = width * 0.117F;
+            mInitPositionY = height * 0.35F;
+            mMatrix.reset();
+            mMatrix.postTranslate(mInitPositionX, mInitPositionY);
+            for (int resID : mImages) {
+                mFrames.add(BitmapFactory.decodeResource(mContext.getResources(), resID));
             }
-            box.set(0, 0, frames.get(0).getWidth(), frames.get(0).getHeight());
-            isInit = true;
-            lastTime = System.currentTimeMillis();
+            mBox.set(0, 0, mFrames.get(0).getWidth(), mFrames.get(0).getHeight());
+            mInited = true;
+            mInitTime = System.currentTimeMillis();
             return;
         }
         //移动
-        matrix.postTranslate(2, 0);
+        mMatrix.postTranslate(2, 0);
         //边界处理
-        matrix.mapRect(targetBox, box);
-        if (targetBox.left > width) {
-            matrix.postTranslate(-targetBox.right, 0);
+        mMatrix.mapRect(mTargetBox, mBox);
+        if (mTargetBox.left > width) {
+            mMatrix.postTranslate(-mTargetBox.right, 0);
         }
         //取得帧动画图片
         long curTime = System.currentTimeMillis();
-        curFrameIndex = (int) ((curTime - lastTime) / 500 % 8);
+        mCurFrameIndex = (int) ((curTime - mInitTime) / 500 % 8);
 
-        Bitmap curBitmap = frames.get(curFrameIndex);
+        Bitmap curBitmap = mFrames.get(mCurFrameIndex);
         //绘制
         canvas.save();
-        canvas.drawBitmap(curBitmap, matrix, paint);
+        canvas.drawBitmap(curBitmap, mMatrix, mPaint);
         canvas.restore();
     }
 }
